@@ -1,0 +1,62 @@
+### Fitting a line to data
+- Given data $(x_i,y_i)$ belonging to a line $x \ cos(\theta) + y \ sin(\theta) = d$ 
+- We can solve for the line by optimization (minimizing the mean squared error) $$\text{argmin}_{\theta \in [0,2\pi], \  d \ \geq \ 0} \sum^N_{i=1}(x_icos(\theta) + y_isin(\theta) - d)^2$$
+- Solve by setting $\frac{\partial f}{\partial d} = 0$ and get $d = \frac{1}{N} \sum_i(x_i cos(\theta) + y_i sin(\theta))$
+- Eliminate $d$ and get the solution is the eigenvector to the minimal eigenvalue of $C$ (not tested)
+- This corresponds to maximizing (maximum likelihood) $$e^{\frac{-1}{2\sigma_i^2}}(cos(\theta) x_i + sin(\theta) y_i - d)^2$$
+### Hough Transform
+- Idea: What if there are multiple lines? How do we choose which points belong
+- For a line in the form $x \ cos(\theta) + y \ sin(\theta) = d$, the parameter space of the line is in $(\theta, d)$
+	- Each point in the parameter space corresponds to a line in 2D
+	- For a set of points $(x_i, y_i)$, if we plot $\theta \text{ vs } d$, the intersection points are where multiple points exist on the same line
+	- ![[Screen Shot 2022-11-16 at 10.23.15 AM.png]]
+- Hough Voting Procedure: For every possible line $(d, \theta)$, count the number of points that support it $$\sum_{\text{points } x,y} 1(x \ cos(\theta) + y \ sin (\theta) = d)$$
+	- The $(d, \theta)$ with the maximum votes wins
+- Issue 1: Points shouldn't need to lie perfectly on the line to vote
+	- Solution: $$\sum_{\text{points } x,y} 1(|x \ cos(\theta) + y \ sin(\theta) - d| < \delta_{\text{threshold}})$$
+- Issue 2: *For every possible line $(d, \theta)$*
+	- Solution: Discretize the parameter space
+		- For each of some enumerated discrete parameter combinations $\{(d_j,\theta_j)\}^J_{j=1}$, count supporting points among the data
+- Hough Circle Detection (3 parameters)
+	- Fixing $(x,y)$ in the circle equation produces $$(x - a)^2 + (y - b)^2 = r$$
+	- We get the equation of a cone in $(a,b,r)$ Hough space
+- Hough Ellipse Detection (5 parameters)
+	- Hough transform needs the computation of $V(c_x, c_y, \alpha, \beta, \theta)$
+	- Becomes intractable beyond lines and circles
+- Application: Automatically grouping vanishing points
+	- Each pair of detected line segments votes for their point of intersection
+	- Use larger weights for longer segments and non-collinear segments
+- Disadvantages of Hough Transforms
+	- Needs a bounded parameter space to allow a finite discrete set of hypotheses
+	- Poor scaling: Alternative solution that scales  much better is RANSAC
+___
+### RANSAC
+- Random Sample Consensus
+- Restrict to finding one among a group (one line, circle, etc)
+- Algorithm
+	- Set maximum inlier count $M = 0$
+	- For $k$ iterations
+		- Find the corresponding line $l$, that goes through both (for general case, choose number of points in minimal sample set)
+		- Check how many other points approximately lie on this line (inliers)
+		- If $n_{\text{inliers}} > M$, set $M = n_{\text{inliers}}$ and set  best candidate to $l^*$
+- Minimal Sample Sets
+	- Plane: 3 points
+	- Circle: 3 points
+	- Ellipsoid: 5 points
+	- Line: 2 points
+	- Homography: 4 2D $\rightarrow$ 3D point correspondes on a 3D plane
+	- P3P: 3 2D $\rightarrow$ 3D point correspondences in 3D
+- Probabilistic Analysis of RANSAC
+	- Suppose the probability of any given sample being a true inlier is $\epsilon$
+	- Suppose the minimal set has $M$ points (listed above)
+	- The probability that the minimal set is all inliers is $\epsilon^M$
+	- In $k$ iterations, the probability of never finding an all-inlier set (RANSAC failing) is $(1 - \epsilon^M)^k$
+	- The probability of success is then: $$1 - (1 - \epsilon^M)^k$$
+	- The number of iterations is then defined as $$k = \frac{\log(1-p)}{\log(1-\epsilon^M)}$$
+		- Where $p$ is the desired probability of success, $\epsilon$ is the probability of a sample being an inlier, and $M$ is the number of samples in a minimal set
+- RANSAC vs Hough
+	- RANSAC can only deal with 1 model, Hough can detect multiple
+	- RANSAC is more efficient when fraction of outliers is low
+	- RANSAC requires the solution of a minimal set problem
+	- Hough needs a bounded parameter space
+	- Hough is intractable for large numbers of unknowns

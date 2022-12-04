@@ -1,0 +1,21 @@
+- Projective Transformations/Collineations/Homographies
+	- Projective transformation is any invertible matrix transformation $\mathbb{P}^2 \rightarrow \mathbb{P}^2$
+	- Represents the perspective projection from a world **plane** to the image plane
+	- A projective transformation $A$ maps $p' \sim Ap$, or rewritten as $\lambda p' = Ap$
+	- Projective transformation matrix must be invertible $\therefore det(A) \neq 0$
+	- Scale invariant $\mu \lambda p' = \mu A p$, therefore only 8DOF
+	- Less restrictive transformation type than affine
+- Representing a Perspective Projection $P$ as a Homography $H$
+	- $$\begin{bmatrix} u \\ v \\ w \end{bmatrix} \sim K \begin{bmatrix} r_1 & r_2 & r_3 & T \end{bmatrix} \begin{bmatrix} X \\ Y \\ Z \\ W \end{bmatrix}$$
+	- Let's map the ground plane $Z=0$ to the image plane, this becomes $$\begin{bmatrix} u \\ v \\ w \end{bmatrix} \sim K \begin{bmatrix} r_1 & r_2 & T \end{bmatrix} \begin{bmatrix} X \\ Y \\ W \end{bmatrix}$$
+- Computing Homographies from 4-Point Correspondences (*4-Point Collineation*)
+	- 3 points allow us to recover $$\begin{bmatrix} a & b & c \end{bmatrix} = \begin{bmatrix} \alpha a & \beta b & \gamma c \end{bmatrix} \begin{bmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{bmatrix}$$ where $a, b, c$ are vectors
+	- This only has 3DOF and is therefore not enough
+	- With a 4th point where $A$ maps $d$ to $d'$ $$\lambda d' = \begin{bmatrix} \alpha a & \beta b & \gamma c\end{bmatrix} d$$
+	- This will allow us to recover the full homography matrix up to a scale (8DOF)
+	- No 3 of the 4 point correspondences can be collinear
+	- Often times choose: $(1,0,0), (0,1,0), (0,0,1), (1,1,1)$ as the correspondences (x vanishing point, y vanishing point, origin, and one other point)
+- Notes on the Homography
+	- The first 2 columns are **vanishing points**
+	- This allows us to compute the horizon by taking the cross product of the first 2 columns
+	- The transformation from 1 image plane to another can be computed by 2 homographies, $H^{-1}$ to go to world coordinates and then another homography $H'$ to go to the second image plane: $$a' = H'H^{-1}a$$

@@ -1,0 +1,20 @@
+- Types of ambiguity in 2-View SfM Solutions
+	- Mirror Ambiguity: If $T$ is a solution, then $-T$ is also a solution. There is no way to disambiguate the epipolar constraint from $q^T(-T \times Rp) = 0$
+	- Twisted Pair Ambiguity: If $R$ is a solution, then also $R_{T,\pi}R$ is a solution. The first camera is twisted around the baseline 180$\degree$
+	- ![[Pics/Screen Shot 2022-10-23 at 2.47.23 PM.png]]
+- In 2-View SfM, what if there is no translation?
+	- Epipolar constraint becomes $0 = 0$ so can't continue with SfM solution
+	- Can however go back to $\lambda q = \mu R p + T (=0) = \mu R p \therefore q \sim Rp$
+		- Going back to pixel coordinates from calibrated: $$K^{-1}q_{px} \sim RK^{-1}p_\text{px} \therefore q_\text{px} \sim KRK^{-1}p_\text{px}$$
+		- This is a homography! We are mapping one image plane to another of the same rigid world-view. Mapping of one plane to another is exactly a homography $$H = KRK^{-1}$$
+		- Intuitively in the equation, we are converting to calibrated coordinates, rotating to get to the second view's frame, and then projecting via the intrinsics
+- Checking for no translation during SfM
+	- Set up n point correspondences as $A_{2n \times 9}h_{9 \times 1} = 0$ (same as when solving for homography)
+	- If $\text{rank}(A) \approx 8$, can approximately compute $H$, meaning there is no significant translation
+- Image Stitching/Mosaicing from Rotated Views
+	- Can use the above to stitch images together (like in a panorama)
+	- ![[Screen Shot 2022-10-23 at 2.56.45 PM.png]]
+	- Can't use to create a greater than 180$\degree$ panorma, as you start projecting backwards-facing views onto the same image plane
+	- To do this, we need to instead project onto a sphere
+- Hough and RANSAC
+	- Not covered on Midterm 1, return to later

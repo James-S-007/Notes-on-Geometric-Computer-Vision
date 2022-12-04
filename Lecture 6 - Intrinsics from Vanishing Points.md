@@ -1,0 +1,11 @@
+- Computing Camera Intrinsics from Vanishing Points
+	- Given a scene with 3 orthogonal sets of parallel lines, we can get 3 orthogonal vanishing points
+	- Can compute the horizon with 2 of these on the same plane, but cannot compute the 3rd vanishing point from this horizon unless assuming camera intrinsics
+	- ![[Screen Shot 2022-10-21 at 10.02.01 AM.png]]
+	- Through some crazy geometry, we get the image center is the orthocenter of the triangle formed by the projections of the 3 orthogonal vanishing points
+	- To compute the focal length...
+	- ![[Screen Shot 2022-10-21 at 10.04.10 AM.png]]
+- In Summary
+	- $(u_0, v_0)$ is the orthocenter of the 3 orthogonal vanishing points
+	- $f = \sqrt{d_1 d_2 - d_3^2}$
+	- Can recover full intrinsics $K$ from 3 orthogonal VPs and extrinsics $R$ but not the translation because translations do not affect vanishing points

@@ -1,0 +1,54 @@
+- Recap: Trying to solve $$R(\lambda_i p_i) + T = \mu_i q_i$$ and rewrote this as $$q^T_i (T \times Rp_i) = 0$$
+	- $R, \lambda, T, \mu$ are all unknowns
+- Epipolar Planes, Lines, and Epipoles
+	- An epipolar plane is any plane that contains the baseline. Any 3D point will produce a corresponding epipolar plane
+	- The intersection of an epipolar plane with the image plane is the epipolar line for that 3D point
+	- Epipoles are the images of the other camera center on each plane
+		- Also can be thought of as the intersection of the baseline $T$ with the two planes or the vanishing point of the translation direction in each plane
+		- All epipolar lines in each image plane pass through its epipole
+		- Epipole for from view $q$ $$e_q \sim T$$
+		- Epipole from view $p$ $$e_p \sim -R^TT$$
+	- ![[Screen Shot 2022-10-23 at 12.15.10 PM.png]]
+- Linear Algebra Review: Cross Products through Skew-Symmetric Matrices
+	- $$a \times b = [a]_xb = \begin{bmatrix} 0 & -a_3 & a_2 \\ a_3 & 0 & -a_1 \\ -a_2 & a_1 & 0 \end{bmatrix} \begin{bmatrix} b_1 \\ b_2 \\ b_3 \end{bmatrix}$$
+	- Skew-symmetric matrix form of a vector $a$ is often denoted $\hat{a}$
+- The Essential Matrix $E$
+	- $$q_i^T(T \times Rp_i) = 0 \rightarrow q_i^T(\hat{T} R)p_i$$
+	- $$E = (\hat{T}R) \therefore q_i^TEp_i = 0$$
+	- This is now linear in the unknowns of $E_{3 \times 3}$, we will need to recover $T_{3 \times 1}$ and $R_{3 \times 3}$ later
+	- Verifying Linearity
+		- $E = \begin{pmatrix} e_1 & e_2 & e_3 \end{pmatrix}$
+		- $q^T \begin{pmatrix} e_1 & e_2 & e_3 \end{pmatrix} \begin{pmatrix} p_x \\ p_y \\ p_z \end{pmatrix} = q^T \begin{pmatrix} p_xe_1 + p_ye_2 + p_ze_3\end{pmatrix} = \begin{pmatrix} p_xq^T & p_yq^T & p_zq^T \end{pmatrix} \begin{pmatrix} e_1 \\ e_2 \\ e_3 \end{pmatrix} 0$
+		- Equation is therefore linear in homogeneous in $E' = \begin{pmatrix} e_1 \\ e_2 \\ e_3 \end{pmatrix}$
+- Slight Aside: Fundamental Matrix $F$
+	- Essential matrix $E$ connects image plane coordinates (calibrated coordinates)
+	- Fundamental matrix $F$ assumes still pixel coordinates
+	- Can rewrite $q^TEp = 0$ as $(K_qq)^TF(K_pp) = 0$
+- Epipolar Lines in terms of $E$
+	- Recall equation of a line is projective space is $l^Tp = 0$
+	- Epipolar line is $q^TEp = 0$ with coefficients ($l$) $E^Tq$
+- Epipolar Lines and Point Correspondences
+	- Given a point $p$ is the left view's image of a world point, the right image of that point is constrained to line on the corresponding right epipolar line
+	- This makes finding point correspondences much easier as we can reduce it to a 1D search
+- Special Case: Frontoparallel/Parallel Stereo Cameras
+	- If two cameras have no rotation differences and lie on the same axis, finding point correspondences via the epipolar line constraint allows us to search on the same row of the image
+	- In this case the epipole (image of other camera center in each image) is at infinity and the epipolar line is horizontal
+- Minor Aside: Epipolar "Pencils"
+	- ![[Screen Shot 2022-10-23 at 12.43.47 PM.png]]
+	- The epipolar lines in each image plane form a "pencil" whose tip is the epipole
+	- Allow us to visually identify camera orientations
+- Computing $E$ from Point Correspondences
+	- We know $p'_iEq_i = 0$  for all corresponding points $p_i$ and $q_i$
+	- Longuet-Higgins' 8-Point Algorithm
+		- Each correspondence gives us one linear equation in the unknowns $E$
+		- Let $a = \begin{pmatrix} p_xq^T & p_yq^T & p_zq^T \end{pmatrix}_{1 \times 9}$
+		- $$\begin{pmatrix} a_1^T \\ a_2^T \\ ... \\ a_n^T\end{pmatrix}E' = 0$$
+		- Solution to $E'$ is the null space of $A = \begin{pmatrix} a_1^T \\ a_2^T \\ ... \\ a_n^T\end{pmatrix}$, therefore set $E'$ to the last right singular vector of $A_{n \times 9}$
+		- Rank of $A$
+			- If we have greater than 8 points, it is not a problem. The last singular vector of $A$ already gives us the closest thing to finding a null vector for a non-singular matrix
+			- If $A$ is too low rank, we can't do anything besides restart and find better point correspondences. This can occur if points lie on any quadric surfaces (planes, cylinders, ellipsoids, etc)
+		- After solving for $E$...
+			- $E = \hat{T}R$ has fewer than 8DOF ($T$ has 3, $R$ has 3, and $E$ is scale invariant so there are only 5 in total
+			- We technically don't need 8 points, there are methods with as few as 5 points but are even more complicated than the P3P solution and is generally just less convenient than getting a few more point correspondences
+			- Scale invariance: There is actually no way of recovering the scale in this problem formulation without some measure of distance in the real world. Most often this is overcome through some previous knowledge of the world or using gyroscopic measurements of a robot moving, where the multiple views are from the same cameras at different position in space and time
+			- ![[Screen Shot 2022-10-23 at 12.56.54 PM.png]]

@@ -1,0 +1,35 @@
+- Recap
+	- Homographies are linear maps from $x \in \mathbb{P}^2$ to $y \in \mathbb{P}^2$
+	- In computer vision, are a direct outcome of applying a perspective projection to world points lying on a single plane
+- Computing Homographies with 4 Correspondences
+	- $$\lambda \begin{bmatrix} x' \\ y' \\ 1 \end{bmatrix}
+	= \begin{bmatrix} h_{11} & h_{12} & h_{13} \\ h_{21} & h_{22} & h_{23} \\ h_{31} & h_{32} & h_{33} \end{bmatrix}
+	\begin{bmatrix} x \\ y \\ 1 \end{bmatrix}
+	$$
+	- Produces system of 3 linear equations
+		- $\lambda x' = h_{11}x + h_{12}y + h_{13}$
+		- $\lambda y' = h_{21}x + h{22}y + h_{23}$
+		- $\lambda = h_{31}x + h_{32}y + h_{33}$
+	- Input $\lambda$ in top 2 equations and get, equations that are linear in $h_{ij}$
+		- $a_x = \begin{bmatrix} -x & y & -1 & 0 & 0 & 0 & xx' & yx' & x' \end{bmatrix}$
+		- $a_y = \begin{bmatrix} 0 & 0 & 0 & -x & -y & -1 & xy' & yy' & y' \end{bmatrix}$
+		- $h = \begin{bmatrix} h_{11} & h_{12} & h_{13} & h_{21} & h_{22} & h_{23} & h_{31} & h_{32} & h_{33} \end{bmatrix}$
+		- $\begin{bmatrix} a_x \\ a_y \end{bmatrix} h = 0$
+		- $A$ has 8 total DOF, each point nails down 2 so we need 4 point correspondences total
+	- Inaccuracies of Measurements
+		- There may not be an $h$ that produces exactly $Ah = 0$, therefore we use the SVD of $A$ and set $h$ to be the smallest right singular vector
+- Equation of the Horizon
+	- Horizon is the line connecting vanishing points (first 2 columns of a homography!)
+	- $(v_1 \times v_2)^T \begin{bmatrix} x \\ y \\ z \end{bmatrix} = 0$
+	- Points at infinity in the world plane are of the form $(X, Y, W=0)^T$
+	- The "line" connecting them is $l = (0, 0, W = 1)^T \rightarrow$ the line at $\infty$. The image of this line is the horizon
+	- If we can find the projection of this line, can compute the horizon...
+- Projective Transformation of Lines
+	- If $A$ maps a point to $Ap$, where does line $l$ map?
+	- Equation of a line in original plane $\rightarrow l^Tp = 0$
+	- Equation of a line in image plane ($p' \sim Ap$) $\rightarrow l^TA^{-1}p' = 0$
+	- Implies that: $l' = A^{-T}l$
+	- Back to the Horizon
+		- Projection of the horizon is therefore: $H^{-T}(0,0,1)^T$
+		- This becomes: $h_1 \times h_2$, the same equation we had derived previously!
+- Horizon gives complete info about how the ground plane is oriented (ONLY assuming standard camera intrinsics $K$, i.e. no cropping, etc.)

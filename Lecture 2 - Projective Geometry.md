@@ -1,0 +1,52 @@
+- Points and Lines in Euclidean 2D
+	- Point: $x = (x,y)^T \in \mathbb{R}^2$
+	- Line: Collection of all points that satisfy $ax + by + c = 0$
+		- Can be rewritten as vector: $l = [a,b,c]^T$
+		- Equation of a line: $$l^T \begin{bmatrix} x \\ y \\ 1 \end{bmatrix} = 0$$
+- Points and Lines in Euclidean 3D
+	- Point: $x = (x,y,z)^T \in \mathbb{R}^3$
+	- Plane in 3D: Collection of all points that satisfy $ax + by + cz + d = 0$
+		- Can be rewritten as vector: $\pi = [a,b,c,d]^T$
+		- Equation of a plane: $$\pi^T \begin{bmatrix} x \\ y \\ z \\ 1 \end{bmatrix} = 0$$
+	- Lines in 3D
+		- Interpolate between two points $(x_1, y_1, z_1)^T$ and $(x_2, y_2, z_2)^T$
+		- Set of all points that satisfy $(x,y,z)^T = (x_1,y_1,z_1)^T+\lambda(x_2-x_1, y_2-y_1,z_2-z_1)^T$
+		- Also can be thought of as intersection between 2 3D planes: $$\begin{bmatrix} \pi^T_1 \\ \pi^T_2 \end{bmatrix} \begin{bmatrix} x \\ y \\ z \\ 1 \end{bmatrix} = \begin{bmatrix} 0 \\ 0\end{bmatrix}$$
+		- Special Case Through Origin: $(x,y,z)^T = \lambda (x_2,y_2,z_2)^T$
+			- We are interested in rays *from* the origin ($\lambda >= 0$) in the case of a pinhole camera
+- Transformations in 3D:
+	- Shift/Translation (3 DOF)
+		- $(x,y,z)^T \rightarrow (x,y,z)^T + (x_0,y_0,z_0)^T$
+	- Rotation (3 DOF)
+		- $(x,y,z)^T \rightarrow R_{3 \times 3}(x,y,z)^T$
+		- Rotation Matrices
+			- $R_{3 \times 3} = (r1,r2,r3)$
+			- $R^TR = I$
+			- $r_i^Tr_i =||r_i||_2 = 1$ and $r_i^Tr_j = 0$ for all i,j
+			- 3 DOF despite 9 elements
+	- **Euclidean Transformations**: Compositions of rotation and translations (6 DOF)
+	- Scaling (1DOF)
+		- $(x,y,z)^T \rightarrow \lambda(x,y,z)^T$
+	- **Similarity Transformations**: Combinations of rotations, translations, scaling (7 DOF)
+	- **Affine Transformations** (12 DOF)
+		- Remove orthonormality constraint on $R$
+		- $(x,y,z)^T \rightarrow A_{3 \times 3}(x,y,z)^T + t$
+		- 9 DOF for $A$ (absorbs scaling) and 3DOF for $t$
+- Vanishing Points
+	- Points at $\infty$ in $\mathbb{R}^n$
+	- Finite in projective space $\mathbb{P}^n$
+	- Solely a function of the direction of the line, not it's position
+- Projective Geometry
+	- Extension of Euclidean geometry using homogeneous coordinates
+	- Two lines always meet in a point (even if the point is at infinity)
+	- $\mathbb{R}^2 \rightarrow \mathbb{P}^2: \begin{bmatrix} x \\ y \end{bmatrix} \rightarrow \begin{bmatrix} x \\ y \\ 1\end{bmatrix}$
+	- $w$ often denotes homogeneous vector element
+	- Key Property: $(x,y,1) = (wx,wy,w)$
+	- What if $w = 0$? $\rightarrow$ This is a point at infinity! Can also be thought of as rays through origin that are parallel to the projective image plane
+- Projective Lines
+	- What does a line in the image correspond to in projective space?
+	- A line is a plane of rays through the origin
+	- All rays $(x,y,w)$ satisfying $ax + by + cw = 0$
+	- $$\begin{bmatrix} a & b & c \end{bmatrix} \begin{bmatrix} x \\ y \\ w\end{bmatrix} = 0 \Rightarrow l^Tx = 0$$
+	- Can also be represented as: $$l = p_1 \times p_2$$ where $p_1$ and $p_2$ are 2 points the line passes through
+	- Intersection point of 2 lines: $$p = l_1 \times l_2$$
